@@ -22,11 +22,13 @@ namespace Infrastructure.Background
                 await Task.Delay(_cleanupInterval, stoppingToken);
                 using (var scope = _services.CreateScope())
                 {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<ChessDataContext>();
-
-                    await dbContext.RefreshTokens
+                    var db = scope.ServiceProvider.GetRequiredService<ChessDataContext>();
+                    if (db.Database.CanConnect())
+                    {
+                        await db.RefreshTokens
                         .Where(rt => rt.Expires < DateTime.UtcNow)
                         .ExecuteDeleteAsync(stoppingToken);
+                    }
                 }
             }
         }

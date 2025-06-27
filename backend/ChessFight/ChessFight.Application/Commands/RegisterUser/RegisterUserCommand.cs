@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MediatR;
+using System.ComponentModel.DataAnnotations;
 
-namespace ChessFight.Application.Dtos
+namespace ChessFight.Application.Commands.RegisterUser
 {
-    public class RegisterRequest
+    public class RegisterUserCommand : IRequest<int?>
     {
         [Required]
         [StringLength(100)]

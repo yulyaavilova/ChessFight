@@ -1,5 +1,12 @@
 
+using ChessFight.Api;
+using ChessFight.Application.Queries.LoginUser;
+using ChessFight.Application.Services.Interfaces;
+using ChessFight.Domain.Entities;
+using ChessFight.Infrastructure.Auth;
 using ChessFight.Infrastructure.Data;
+using Infrastructure.Background;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
@@ -18,6 +25,30 @@ builder.Services.AddDbContext<ChessDataContext>(options =>
     }
 );
 
+builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.Zero;
+    options.Lockout.MaxFailedAccessAttempts = int.MaxValue;
+    options.User.RequireUniqueEmail = true;
+})
+    .AddEntityFrameworkStores<ChessDataContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHostedService<TokenCleanupService>();
+
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(LoginUserQuery).Assembly)
+);
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -33,6 +64,9 @@ using (var scope = app.Services.CreateScope())
     {
         db.Database.EnsureCreated();
         db.Database.Migrate();
+
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+        await RoleInitializer.InitializeAsync(roleManager);
     }
     else
     {

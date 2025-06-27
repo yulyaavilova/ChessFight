@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ChessFight.Application.Dtos;
+using MediatR;
+using System.ComponentModel.DataAnnotations;
 
-namespace ChessFight.Application.Dtos
+namespace ChessFight.Application.Queries.LoginUser
 {
-    public class LoginRequest
+    public class LoginUserQuery : IRequest<AuthResponseDto>
     {
         [Required]
         [EmailAddress]

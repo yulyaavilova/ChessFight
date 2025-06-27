@@ -1,6 +1,6 @@
 ﻿namespace ChessFight.Application.Dtos
 {
-    public class AuthResponse
+    public class AuthResponseDto
     {
         public bool Success { get; set; }
         public string? Message { get; set; }

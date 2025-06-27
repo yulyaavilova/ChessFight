@@ -39,7 +39,7 @@ namespace ChessFight.Infrastructure.Auth
             return token;
         }
 
-        public async Task<AuthResponse> CreateTokensAsync(User user)
+        public async Task<AuthResponseDto> CreateTokensAsync(User user)
         {
             var roles = await _userManager.GetRolesAsync(user);
             var accessToken = _jwtProvider.GenerateAccessToken(user, roles);
@@ -53,7 +53,7 @@ namespace ChessFight.Infrastructure.Auth
             };
         }
 
-        public async Task<AuthResponse> UpdateTokensAsync(string refreshToken)
+        public async Task<AuthResponseDto> UpdateTokensAsync(string refreshToken)
         {
             var storedToken = await _context.RefreshTokens
                 .Include(rt => rt.User)
@@ -82,7 +82,7 @@ namespace ChessFight.Infrastructure.Auth
         {
             var tokens = await _context.RefreshTokens
                 .Where(x => x.UserId == userId)
-                .ToListAsync();
+                .ToListAsync(); 
 
             _context.RefreshTokens.RemoveRange(tokens);
             await _context.SaveChangesAsync();
