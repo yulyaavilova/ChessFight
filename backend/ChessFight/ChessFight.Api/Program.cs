@@ -1,5 +1,6 @@
 
 using ChessFight.Api;
+using ChessFight.Api.Extensions;
 using ChessFight.Application.Queries.LoginUser;
 using ChessFight.Application.Services.Interfaces;
 using ChessFight.Domain.Entities;
@@ -40,6 +41,10 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
+
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -81,6 +86,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
